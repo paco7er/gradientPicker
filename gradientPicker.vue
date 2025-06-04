@@ -25,10 +25,10 @@
 
     <!-- 列表头部 -->
     <div class="stop-row stop-header">
-      <span style="width: 140px">位置</span>
-      <span style="width: 30px"></span>
-      <span style="width: 140px"></span>
-      <span style="text-align: left">
+      <span style="width: 38%;">位置</span>
+      <span style="width: 10%"></span>
+      <span style="width: 38%"></span>
+      <span style="text-align: right; width: 14%">
         <el-button @click="addColorStopManually" style="border: none; background: transparent;">
           <svg t="1748571155200" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5019" width="20" height="20"><path d="M469.312 469.312v-256h85.376v256h256v85.376h-256v256H469.312v-256h-256V469.312z" fill="#8a8a8a" p-id="5020"></path></svg>
         </el-button>
@@ -38,14 +38,14 @@
     <!-- 颜色点列表 -->
     <div class="stop-list">
       <div class="stop-row" v-for="(stop, index) in internalStops" :key="index">
-        <el-input-number v-model="stop.position" :min="0" :max="100" controls-position="right" style="width: 140px" @focus="selectStop(index)">
+        <el-input-number v-model="stop.position" :min="0" :max="100" controls-position="right" style="width: 38%" @focus="selectStop(index)">
           <template #suffix>
             <span>%</span>
           </template>
         </el-input-number>
-        <el-color-picker v-model="stop.color" style="width: 30px" @focus="selectStop(index)"/>
-        <el-input v-model="stop.color" style="width: 140px" @focus="selectStop(index)"/>
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+        <el-color-picker v-model="stop.color" style="width: 10%; text-align: right" @focus="selectStop(index)"/>
+        <el-input v-model="stop.color" style="width: 38%" @focus="selectStop(index)"/>
+        <div style="display: flex; justify-content: right; height: 100%; width: 14%">
           <el-button @click="removeStopByIndex(index)" :disabled="internalStops.length <= 2" style="border: none; background: transparent;">
             <svg t="1748571216087" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3964" width="20" height="20"><path d="M802.909091 488.727273h-558.545455a34.909091 34.909091 0 1 0 0 69.818182h558.545455a34.909091 34.909091 0 1 0 0-69.818182" fill="#797979" p-id="3965"></path></svg>
           </el-button>
@@ -256,9 +256,8 @@ onUnmounted(() => {
   margin-top: 8px;
   max-height: 100px;
   overflow-y: auto;
-  padding-right: 4px; /* 防止滚动条遮住内容 */
+  scrollbar-width: none;
 }
-
 .stop-row {
   display: flex;
   align-items: center;
