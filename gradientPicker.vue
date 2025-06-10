@@ -38,12 +38,17 @@
     <!-- 颜色点列表 -->
     <div class="stop-list">
       <div class="stop-row" v-for="(stop, index) in internalStops" :key="index">
-        <el-input-number v-model="stop.position" :min="0" :max="100" controls-position="right" style="width: 38%" @focus="selectStop(index)">
+        <el-input-number v-model="stop.position" :min="0" :max="100" controls-position="right" style="width: 38%" @focus="selectStop(index)" @blur="sortStops">
           <template #suffix>
             <span>%</span>
           </template>
         </el-input-number>
-        <el-color-picker v-model="stop.color" style="width: 10%; text-align: right" @focus="selectStop(index)"/>
+        <el-color-picker
+            v-model="stop.color"
+            :key="index + '-' + stop.position + '-' + stop.color"
+            style="width: 10%; text-align: right"
+            @focus="selectStop(index)"
+        />
         <el-input v-model="stop.color" style="width: 38%" @focus="selectStop(index)"/>
         <div style="display: flex; justify-content: right; height: 100%; width: 14%">
           <el-button @click="removeStopByIndex(index)" :disabled="internalStops.length <= 2" style="border: none; background: transparent;">
@@ -68,7 +73,7 @@ const props = defineProps({
     ]
   }
 })
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['modelValue'])
 
 const internalStops = ref([...props.modelValue])
 const selectedIndex = ref(null)
@@ -78,7 +83,8 @@ const draggingIndex = ref(null)
 
 // 渐变背景
 const gradientCSS = computed(() => {
-  return `linear-gradient(to right, ${internalStops.value
+  return `linear-gradient(to right, ${[...internalStops.value]
+      .sort((a, b) => a.position - b.position)
       .map(stop => `${stop.color} ${stop.position}%`)
       .join(', ')})`
 })
@@ -100,18 +106,14 @@ watch(
 )
 
 // 同步内部状态
-watch(
-    internalStops,
-    (val) => {
-      const sorted = [...val].sort((a, b) => a.position - b.position)
-      if (JSON.stringify(sorted) !== JSON.stringify(props.modelValue)) {
-        internalStops.value = sorted
-        emit('update:modelValue', sorted)
-      }
-    },
-    { deep: true }
-)
-
+function sortStops() {
+  const current = internalStops.value[selectedIndex.value]
+  internalStops.value.sort((a, b) => a.position - b.position)
+  selectedIndex.value = internalStops.value.findIndex(
+      (s) => s.position === current.position && s.color === current.color
+  )
+  emit('modelValue', internalStops.value)
+}
 // 点击条添加颜色点
 function addColorStop(event) {
   const rect = event.target.getBoundingClientRect()
@@ -149,6 +151,7 @@ function selectStop(index) {
 
 // 拖拽相关事件
 function onDragStart(event, index) {
+  selectedIndex.value = index
   draggingIndex.value = index
   event.preventDefault()
 }
@@ -168,6 +171,16 @@ function onDragMove(event) {
 
 function onDragEnd() {
   draggingIndex.value = null
+  if (selectedIndex.value !== null) {
+    setTimeout(() => {
+      const current = internalStops.value[selectedIndex.value]
+      internalStops.value.sort((a, b) => a.position - b.position)
+      selectedIndex.value = internalStops.value.findIndex(
+          (s) => s.position === current.position && s.color === current.color
+      )
+      emit('modelValue', internalStops.value)
+    },0)
+  }
 }
 
 onMounted(() => {
