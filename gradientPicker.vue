@@ -131,6 +131,11 @@ function addColorStop(event) {
 function addColorStopManually() {
   const newStop = { color: '#FACD91', position: 50 }
   internalStops.value.push(newStop)
+  internalStops.value.sort((a, b) => a.position - b.position)
+  selectedIndex.value = internalStops.value.findIndex(
+      (s) => s.position === newStop.position && s.color === newStop.color
+  )
+  emit('modelValue', internalStops.value)
 }
 
 // 删除颜色点
